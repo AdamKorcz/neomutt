@@ -33,27 +33,40 @@
 #include "color/lib.h"
 
 /**
- * mutt_curses_set_attr - Set the attributes for text
- * @param attr Attributes to set, e.g. A_UNDERLINE
+ * mutt_curses_set_color - Set the colour and attributes for text
+ * @param ac Colour and Attributes to set
  */
-void mutt_curses_set_attr(int attr)
+void mutt_curses_set_color(struct AttrColor *ac)
 {
-  bkgdset(attr | ' ');
+  if (!ac)
+    return;
+
+  int index = ac->curses_color ? ac->curses_color->index : 0;
+
+#if defined(HAVE_SETCCHAR) && defined(HAVE_BKGRNDSET)
+  cchar_t cch = { 0 };
+  setcchar(&cch, L" ", ac->attrs, index, NULL);
+  bkgrndset(&cch);
+#elif defined(HAVE_BKGDSET)
+  bkgdset(COLOR_PAIR(index) | ac->attrs | ' ');
+#else
+  attrset(COLOR_PAIR(index) | ac->attrs);
+#endif
 }
 
 /**
- * mutt_curses_set_color_by_id - Set the current colour for text
- * @param color Colour to set, e.g. #MT_COLOR_HEADER
- *
- * If the system has bkgdset() use it rather than attrset() so that the clr*()
- * functions will properly set the background attributes all the way to the
- * right column.
+ * mutt_curses_set_color_by_id - Set the colour and attributes by the colour id
+ * @param color Color id, e.g. #MT_COLOR_TREE
+ * @retval ptr Colour set
  */
-void mutt_curses_set_color_by_id(enum ColorId color)
+struct AttrColor *mutt_curses_set_color_by_id(enum ColorId color)
 {
-  const int chosen = simple_colors_get(color);
-  const int normal = simple_colors_get(MT_COLOR_NORMAL);
-  bkgdset((chosen ? chosen : normal) | ' ');
+  struct AttrColor *ac = simple_colors_get(color);
+  if (!ac)
+    ac = simple_colors_get(MT_COLOR_NORMAL);
+
+  mutt_curses_set_color(ac);
+  return ac;
 }
 
 /**

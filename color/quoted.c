@@ -35,24 +35,32 @@
 #include "gui/lib.h"
 #include "options.h"
 
-int QuotedColors[COLOR_QUOTES_MAX]; ///< Array of colours for quoted email text
-int NumQuotedColors;                ///< Number of colours for quoted email text
+struct AttrColor QuotedColors[COLOR_QUOTES_MAX]; ///< Array of colours for quoted email text
+int NumQuotedColors; ///< Number of colours for quoted email text
+
+/**
+ * find_highest_used - Find the highest-numbered quotedN in use
+ * @retval num Highest number
+ */
+int find_highest_used(void)
+{
+  for (size_t i = COLOR_QUOTES_MAX - 1; i >= 0; i--)
+  {
+    if (attr_color_is_set(&QuotedColors[i]))
+      return i + 1;
+  }
+  return 0;
+}
 
 /**
  * quoted_colors_clear - Reset the quoted-email colours
  */
 void quoted_colors_clear(void)
 {
-  memset(QuotedColors, A_NORMAL, COLOR_QUOTES_MAX * sizeof(int));
-  NumQuotedColors = 0;
-}
-
-/**
- * quoted_colors_init - Initialise the quoted-email colours
- */
-void quoted_colors_init(void)
-{
-  memset(QuotedColors, A_NORMAL, COLOR_QUOTES_MAX * sizeof(int));
+  for (size_t i = 0; i < COLOR_QUOTES_MAX; i++)
+  {
+    attr_color_clear(&QuotedColors[i]);
+  }
   NumQuotedColors = 0;
 }
 
@@ -61,12 +69,11 @@ void quoted_colors_init(void)
  * @param q Quote level
  * @retval num Color ID, e.g. #MT_COLOR_QUOTED
  */
-int quoted_colors_get(int q)
+struct AttrColor *quoted_colors_get(int q)
 {
-  const int used = NumQuotedColors;
-  if (used == 0)
-    return 0;
-  return QuotedColors[q % used];
+  if (NumQuotedColors == 0)
+    return NULL;
+  return &QuotedColors[q % NumQuotedColors];
 }
 
 /**
@@ -104,23 +111,36 @@ bool quoted_colors_parse_color(enum ColorId color, uint32_t fg, uint32_t bg,
   if (q_level >= NumQuotedColors)
     NumQuotedColors = q_level + 1;
 
-  if (q_level == 0)
-  {
-    SimpleColors[MT_COLOR_QUOTED] = fgbgattr_to_color(fg, bg, attrs);
+  struct AttrColor *ac = &QuotedColors[q_level];
+  ac->attrs = attrs;
+  struct CursesColor *cc = curses_color_new(fg, bg);
+  curses_color_free(&ac->curses_color);
+  ac->curses_color = cc;
 
-    QuotedColors[0] = SimpleColors[MT_COLOR_QUOTED];
-    for (q_level = 1; q_level < NumQuotedColors; q_level++)
-    {
-      if (QuotedColors[q_level] == A_NORMAL)
-        QuotedColors[q_level] = SimpleColors[MT_COLOR_QUOTED];
-    }
-  }
-  else
-  {
-    QuotedColors[q_level] = fgbgattr_to_color(fg, bg, attrs);
-  }
+  if (!cc)
+    NumQuotedColors = find_highest_used();
+
   *rc = MUTT_CMD_SUCCESS;
   return true;
+}
+
+/**
+ * quoted_colors_parse_uncolor - Parse the 'uncolor quoted' command
+ * @param color   Colour ID, should be #MT_COLOR_QUOTED
+ * @param q_level Quoting depth level
+ * @param err     Buffer for error messages
+ * @retval num Result, e.g. #MUTT_CMD_SUCCESS
+ */
+enum CommandResult quoted_colors_parse_uncolor(enum ColorId color, int q_level,
+                                               struct Buffer *err)
+{
+  struct AttrColor *ac = &QuotedColors[q_level];
+  attr_color_clear(ac);
+
+  NumQuotedColors = find_highest_used();
+
+  //QWQ notify
+  return MUTT_CMD_SUCCESS;
 }
 
 /**
@@ -187,7 +207,7 @@ static void qstyle_insert(struct QuoteStyle *quote_list,
     if (q_list->quote_n >= index)
     {
       q_list->quote_n++;
-      q_list->color = quoted_colors_get(q_list->quote_n);
+      q_list->attr_color = quoted_colors_get(q_list->quote_n);
     }
     if (q_list->down)
       q_list = q_list->down;
@@ -207,7 +227,7 @@ static void qstyle_insert(struct QuoteStyle *quote_list,
   }
 
   new_class->quote_n = index;
-  new_class->color = quoted_colors_get(index);
+  new_class->attr_color = quoted_colors_get(index);
   (*q_level)++;
 }
 
@@ -229,6 +249,7 @@ struct QuoteStyle *qstyle_classify(struct QuoteStyle **quote_list, const char *q
   size_t offset, tail_lng;
   int index = -1;
 
+  //QWQ - means that `set toggle_quoted_show_levels=1` + <toggle-quoted> doesn't work
   if (quoted_colors_num_used() <= 1)
   {
     /* not much point in classifying quotes... */
@@ -236,7 +257,7 @@ struct QuoteStyle *qstyle_classify(struct QuoteStyle **quote_list, const char *q
     if (!*quote_list)
     {
       qc = qstyle_new();
-      qc->color = quoted_colors_get(0);
+      qc->attr_color = quoted_colors_get(0);
       *quote_list = qc;
     }
     return *quote_list;
@@ -480,7 +501,7 @@ struct QuoteStyle *qstyle_classify(struct QuoteStyle **quote_list, const char *q
           tmp->up = ptr;
 
           tmp->quote_n = (*q_level)++;
-          tmp->color = quoted_colors_get(tmp->quote_n);
+          tmp->attr_color = quoted_colors_get(tmp->quote_n);
 
           return tmp;
         }
@@ -508,7 +529,7 @@ struct QuoteStyle *qstyle_classify(struct QuoteStyle **quote_list, const char *q
     qc->prefix = mutt_strn_dup(qptr, length);
     qc->prefix_len = length;
     qc->quote_n = (*q_level)++;
-    qc->color = quoted_colors_get(qc->quote_n);
+    qc->attr_color = quoted_colors_get(qc->quote_n);
 
     if (*quote_list)
     {

@@ -33,23 +33,21 @@
 #include "mutt/lib.h"
 #include "gui/lib.h"
 
-int SimpleColors[MT_COLOR_MAX]; ///< Array of all fixed colours, see enum ColorId
+struct AttrColor SimpleColors[MT_COLOR_MAX]; ///< Array of Simple colours
 
 /**
  * simple_colors_init - Initialise the simple colour definitions
  */
 void simple_colors_init(void)
 {
-  memset(SimpleColors, A_NORMAL, MT_COLOR_MAX * sizeof(int));
-
   // Set some defaults
-  SimpleColors[MT_COLOR_INDICATOR] = A_REVERSE;
-  SimpleColors[MT_COLOR_MARKERS] = A_REVERSE;
-  SimpleColors[MT_COLOR_SEARCH] = A_REVERSE;
+  SimpleColors[MT_COLOR_INDICATOR].attrs = A_REVERSE;
+  SimpleColors[MT_COLOR_MARKERS].attrs = A_REVERSE;
+  SimpleColors[MT_COLOR_SEARCH].attrs = A_REVERSE;
 #ifdef USE_SIDEBAR
-  SimpleColors[MT_COLOR_SIDEBAR_HIGHLIGHT] = A_UNDERLINE;
+  SimpleColors[MT_COLOR_SIDEBAR_HIGHLIGHT].attrs = A_UNDERLINE;
 #endif
-  SimpleColors[MT_COLOR_STATUS] = A_REVERSE;
+  SimpleColors[MT_COLOR_STATUS].attrs = A_REVERSE;
 }
 
 /**
@@ -57,28 +55,33 @@ void simple_colors_init(void)
  */
 void simple_colors_clear(void)
 {
-  memset(SimpleColors, A_NORMAL, MT_COLOR_MAX * sizeof(int));
+  for (size_t i = 0; i < MT_COLOR_MAX; i++)
+  {
+    attr_color_clear(&SimpleColors[i]);
+  }
 }
 
 /**
  * simple_colors_get - Get the colour of an object by its ID
  * @param id Colour ID, e.g. #MT_COLOR_SEARCH
- * @retval num Color of the object
+ * @retval ptr AttrColor of the object
+ *
+ * @note Do not free the returned object
  */
-int simple_colors_get(enum ColorId id)
+struct AttrColor *simple_colors_get(enum ColorId id)
 {
   if (id >= MT_COLOR_MAX)
   {
     mutt_error("colour overflow %d", id);
-    return 0;
+    return NULL;
   }
   if (id <= MT_COLOR_NONE)
   {
     mutt_error("colour underflow %d", id);
-    return 0;
+    return NULL;
   }
 
-  return SimpleColors[id];
+  return &SimpleColors[id];
 }
 
 /**
@@ -88,9 +91,7 @@ int simple_colors_get(enum ColorId id)
  */
 bool simple_color_is_set(enum ColorId id)
 {
-  int color = simple_colors_get(id);
-
-  return (color > 0);
+  return attr_color_is_set(simple_colors_get(id));
 }
 
 /**

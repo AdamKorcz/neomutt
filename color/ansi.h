@@ -1,6 +1,6 @@
 /**
  * @file
- * Simple colour
+ * ANSI Colours
  *
  * @authors
  * Copyright (C) 2021 Richard Russon <rich@flatcap.org>
@@ -20,21 +20,25 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MUTT_COLOR_SIMPLE_H
-#define MUTT_COLOR_SIMPLE_H
+#ifndef MUTT_COLOR_ANSI_H
+#define MUTT_COLOR_ANSI_H
 
-#include "config.h"
 #include <stdbool.h>
-#include "attr.h"
-#include "color.h"
 
-extern struct AttrColor SimpleColors[];
+struct AttrColorList;
 
-bool              simple_color_is_header(enum ColorId color_id);
-bool              simple_color_is_set(enum ColorId id);
+/**
+ * struct AnsiColor - An ANSI escape sequence
+ */
+struct AnsiColor
+{
+  struct AttrColor *attr_color;    ///< Curses colour of text
+  int attrs;                       ///< Attributes, e.g. A_BOLD
+  int fg;                          ///< Foreground colour
+  int bg;                          ///< Background colour
+};
 
-void              simple_colors_clear(void);
-struct AttrColor *simple_colors_get(enum ColorId id);
-void              simple_colors_init(void);
+int ansi_color_parse     (const char *str, struct AnsiColor *ansi, struct AttrColorList *acl, bool dry_run);
+int ansi_color_seq_length(const char *str);
 
-#endif /* MUTT_COLOR_SIMPLE_H */
+#endif /* MUTT_COLOR_ANSI_H */
