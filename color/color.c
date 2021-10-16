@@ -39,6 +39,7 @@
 #include "lib.h"
 #include "pattern/lib.h"
 #include "context.h"
+#include "debug.h"
 #include "mutt_globals.h"
 
 const struct Mapping ColorNames[] = {
@@ -61,6 +62,7 @@ const struct Mapping ColorNames[] = {
  */
 void colors_clear(void)
 {
+  color_debug("clean up\n");
   simple_colors_clear();
   quoted_colors_clear();
   regex_colors_clear();
@@ -81,6 +83,7 @@ void mutt_colors_cleanup(void)
  */
 void mutt_colors_init(void)
 {
+  color_debug("init\n");
   color_notify_init();
   simple_colors_init();
   regex_colors_init();
@@ -89,6 +92,7 @@ void mutt_colors_init(void)
 
   start_color();
   use_default_colors();
+  color_debug("COLORS = %d, COLOR_PAIRS = %d\n", COLORS, COLOR_PAIRS);
 
   notify_set_parent(ColorsNotify, NeoMutt->notify);
 }

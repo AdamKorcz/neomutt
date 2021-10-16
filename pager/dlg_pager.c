@@ -322,6 +322,8 @@ static void pager_custom_redraw(struct PagerPrivateData *priv)
         mutt_window_move(priv->pview->win_pager, 0, priv->win_height);
       }
     } while (priv->force_redraw);
+    // curses_colors_dump();
+    // attr_color_list_dump(&priv->ansi_list, "All AnsiColors");
 
     mutt_curses_set_color_by_id(MT_COLOR_TILDE);
     while (priv->win_height < priv->pview->win_pager->state.rows)
@@ -439,6 +441,53 @@ static void expand_index_panel(struct MuttWindow *dlg, struct PagerPrivateData *
 
   window_set_visible(win_pager->parent, false);
   mutt_window_reflow(dlg);
+}
+
+void dump_text_syntax(struct TextSyntax *ts, int num)
+{
+  if (!ts || (num == 0))
+    return;
+
+  for (int i = 0; i < num; i++)
+    mutt_debug(LL_DEBUG1, "\t\t%3d %4d %4d\n",
+               ts[i].attr_color->curses_color->index, ts[i].first, ts[i].last);
+}
+
+void dump_line(int i, struct Line *line)
+{
+  mutt_debug(LL_DEBUG1, "Line: %d\n", i);
+  mutt_debug(LL_DEBUG1, "\toffset: %ld\n", line->offset);
+  // mutt_debug(LL_DEBUG1, "\tcolor: %d\n", line->color);
+  if (line->cont_line)
+    mutt_debug(LL_DEBUG1, "\tcont_line: %s\n",
+               line->cont_line ? "\033[1;32myes\033[0m" : "\033[31mno\033[0m");
+  if (line->cont_header)
+    mutt_debug(LL_DEBUG1, "\tcont_header: %s\n",
+               line->cont_header ? "\033[1;32myes\033[0m" : "\033[31mno\033[0m");
+
+  if (line->syntax_arr_size > 0)
+  {
+    mutt_debug(LL_DEBUG1, "\tsyntax: %d\n", line->syntax_arr_size);
+    dump_text_syntax(line->syntax, line->syntax_arr_size);
+  }
+  if (line->search_arr_size > 0)
+  {
+    mutt_debug(LL_DEBUG1, "\t\033[1;36msearch\033[0m: %d\n", line->search_arr_size);
+    dump_text_syntax(line->search, line->search_arr_size);
+  }
+}
+
+void dump_pager(struct PagerPrivateData *priv)
+{
+  if (!priv)
+    return;
+
+  mutt_debug(LL_DEBUG1, "----------------------------------------------\n");
+  mutt_debug(LL_DEBUG1, "Pager: %d lines (fd %d)\n", priv->lines_used, fileno(priv->fp));
+  for (int i = 0; i < priv->lines_used; i++)
+  {
+    dump_line(i, &priv->lines[i]);
+  }
 }
 
 /**
@@ -797,6 +846,9 @@ int mutt_pager(struct PagerView *pview)
       }
       continue;
     }
+
+    // dump_pager(priv);
+
     //-------------------------------------------------------------------------
     // Finally, read user's key press
     //-------------------------------------------------------------------------
@@ -885,6 +937,7 @@ int mutt_pager(struct PagerView *pview)
     {
       count++;
     }
+    color_debug("AnsiColors %d\n", count);
   }
 
   expand_index_panel(dlg, priv);

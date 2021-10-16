@@ -39,6 +39,7 @@
 #include "color.h"
 #include "context.h"
 #include "curses2.h"
+#include "debug.h"
 #include "mutt_globals.h"
 #include "regex4.h"
 
@@ -59,6 +60,7 @@ struct RegexColorList StatusList;       ///< List of colours applied to the stat
  */
 void regex_colors_init(void)
 {
+  color_debug("init AttachList, BodyList, etc\n");
   STAILQ_INIT(&AttachList);
   STAILQ_INIT(&BodyList);
   STAILQ_INIT(&HeaderList);
@@ -75,6 +77,7 @@ void regex_colors_init(void)
  */
 void regex_colors_clear(void)
 {
+  color_debug("clean up regex\n");
   regex_color_list_clear(&AttachList);
   regex_color_list_clear(&BodyList);
   regex_color_list_clear(&HeaderList);
@@ -338,6 +341,7 @@ bool regex_colors_parse_color_list(enum ColorId color, const char *pat, uint32_t
       return false;
   }
 
+  regex_colors_dump_all();
   return true;
 }
 
@@ -359,5 +363,6 @@ int regex_colors_parse_status_list(enum ColorId color, const char *pat, uint32_t
     return -1;
 
   int rc = add_pattern(&StatusList, pat, true, fg, bg, attrs, err, false, match);
+  regex_colors_dump_all();
   return rc;
 }

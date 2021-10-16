@@ -47,13 +47,27 @@ struct RegexColor
 };
 STAILQ_HEAD(RegexColorList, RegexColor);
 
+#ifdef USE_DEBUG_COLOR
+extern struct RegexColorList AttachList;
+extern struct RegexColorList BodyList;
+extern struct RegexColorList HeaderList;
+extern struct RegexColorList IndexAuthorList;
+extern struct RegexColorList IndexFlagsList;
+extern struct RegexColorList IndexList;
+extern struct RegexColorList IndexSubjectList;
+extern struct RegexColorList IndexTagList;
+extern struct RegexColorList StatusList;
+#endif
+
 void                   regex_color_clear(struct RegexColor *rcol);
 void                   regex_color_free(struct RegexColorList *list, struct RegexColor **ptr);
-void                   regex_color_list_clear(struct RegexColorList *rcl);
 struct RegexColor *    regex_color_new (void);
+
 void                   regex_colors_clear(void);
 struct RegexColorList *regex_colors_get_list(enum ColorId id);
 void                   regex_colors_init(void);
+
+void                   regex_color_list_clear(struct RegexColorList *rcl);
 
 bool regex_colors_parse_color_list (enum ColorId color, const char *pat, uint32_t fg, uint32_t bg, int attrs, int *rc,   struct Buffer *err);
 int  regex_colors_parse_status_list(enum ColorId color, const char *pat, uint32_t fg, uint32_t bg, int attrs, int match, struct Buffer *err);

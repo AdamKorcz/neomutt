@@ -41,6 +41,7 @@ struct TextSyntax
   int first; ///< First character in line to be coloured
   int last;  ///< Last character in line to be coloured (not included)
 };
+ARRAY_HEAD(TextSyntaxArray, struct TextSyntax);
 
 /**
  * struct Line - A line of text in the pager

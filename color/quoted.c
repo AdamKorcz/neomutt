@@ -33,6 +33,7 @@
 #include "mutt/lib.h"
 #include "core/lib.h"
 #include "gui/lib.h"
+#include "debug.h"
 #include "options.h"
 
 struct AttrColor QuotedColors[COLOR_QUOTES_MAX]; ///< Array of colours for quoted email text
@@ -57,6 +58,7 @@ int find_highest_used(void)
  */
 void quoted_colors_clear(void)
 {
+  color_debug("QuotedColors: clean up\n");
   for (size_t i = 0; i < COLOR_QUOTES_MAX; i++)
   {
     attr_color_clear(&QuotedColors[i]);
@@ -102,6 +104,7 @@ bool quoted_colors_parse_color(enum ColorId color, uint32_t fg, uint32_t bg,
   if (color != MT_COLOR_QUOTED)
     return false;
 
+  color_debug("quoted %d\n", q_level);
   if (q_level >= COLOR_QUOTES_MAX)
   {
     mutt_buffer_printf(err, _("Maximum quoting level is %d"), COLOR_QUOTES_MAX - 1);
@@ -112,13 +115,23 @@ bool quoted_colors_parse_color(enum ColorId color, uint32_t fg, uint32_t bg,
     NumQuotedColors = q_level + 1;
 
   struct AttrColor *ac = &QuotedColors[q_level];
+  const bool was_set = ((ac->attrs != 0) || ac->curses_color);
   ac->attrs = attrs;
+
   struct CursesColor *cc = curses_color_new(fg, bg);
   curses_color_free(&ac->curses_color);
   ac->curses_color = cc;
 
   if (!cc)
     NumQuotedColors = find_highest_used();
+
+  if (was_set)
+    quoted_color_dump(ac, q_level, "QuotedColors changed: ");
+  else
+    quoted_color_dump(ac, q_level, "QuotedColors new: ");
+
+  curses_colors_dump();
+  quoted_color_list_dump();
 
   *rc = MUTT_CMD_SUCCESS;
   return true;
@@ -134,8 +147,14 @@ bool quoted_colors_parse_color(enum ColorId color, uint32_t fg, uint32_t bg,
 enum CommandResult quoted_colors_parse_uncolor(enum ColorId color, int q_level,
                                                struct Buffer *err)
 {
+  color_debug("unquoted %d\n", q_level);
+
   struct AttrColor *ac = &QuotedColors[q_level];
   attr_color_clear(ac);
+  quoted_color_dump(ac, q_level, "QuotedColors clear: ");
+
+  curses_colors_dump();
+  quoted_color_list_dump();
 
   NumQuotedColors = find_highest_used();
 

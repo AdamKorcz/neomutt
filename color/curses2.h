@@ -46,8 +46,14 @@ struct CursesColor
 };
 TAILQ_HEAD(CursesColorList, CursesColor);
 
+#ifdef USE_DEBUG_COLOR
+extern struct CursesColorList CursesColors;
+extern int NumCursesColors;
+#endif
+
 void                curses_color_free(struct CursesColor **ptr);
 struct CursesColor *curses_color_new (int fg, int bg);
+
 void                curses_colors_init(void);
 struct CursesColor *curses_colors_find (int fg, int bg);
 
