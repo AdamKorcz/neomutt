@@ -89,7 +89,7 @@ int quoted_colors_num_used(void)
 
 /**
  * quoted_colors_parse_color - Parse the 'color quoted' command
- * @param color   Colour ID, should be #MT_COLOR_QUOTED
+ * @param cid     Colour Id, should be #MT_COLOR_QUOTED
  * @param fg      Foreground colour
  * @param bg      Background colour
  * @param attrs   Attributes, e.g. A_UNDERLINE
@@ -98,10 +98,10 @@ int quoted_colors_num_used(void)
  * @param err     Buffer for error messages
  * @retval true Colour was parsed
  */
-bool quoted_colors_parse_color(enum ColorId color, uint32_t fg, uint32_t bg,
+bool quoted_colors_parse_color(enum ColorId cid, uint32_t fg, uint32_t bg,
                                int attrs, int q_level, int *rc, struct Buffer *err)
 {
-  if (color != MT_COLOR_QUOTED)
+  if (cid != MT_COLOR_QUOTED)
     return false;
 
   color_debug("quoted %d\n", q_level);
@@ -139,12 +139,12 @@ bool quoted_colors_parse_color(enum ColorId color, uint32_t fg, uint32_t bg,
 
 /**
  * quoted_colors_parse_uncolor - Parse the 'uncolor quoted' command
- * @param color   Colour ID, should be #MT_COLOR_QUOTED
+ * @param cid     Colour Id, should be #MT_COLOR_QUOTED
  * @param q_level Quoting depth level
  * @param err     Buffer for error messages
  * @retval num Result, e.g. #MUTT_CMD_SUCCESS
  */
-enum CommandResult quoted_colors_parse_uncolor(enum ColorId color, int q_level,
+enum CommandResult quoted_colors_parse_uncolor(enum ColorId cid, int q_level,
                                                struct Buffer *err)
 {
   color_debug("unquoted %d\n", q_level);

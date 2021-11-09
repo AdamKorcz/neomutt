@@ -57,7 +57,7 @@ enum MuttCursorState
 };
 
 void              mutt_curses_set_color(struct AttrColor *ac);
-struct AttrColor *mutt_curses_set_color_by_id(enum ColorId color);
+struct AttrColor *mutt_curses_set_color_by_id(enum ColorId cid);
 void              mutt_curses_set_cursor(enum MuttCursorState state);
 void              mutt_resize_screen(void);
 

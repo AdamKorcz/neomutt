@@ -256,7 +256,7 @@ static int index_color_observer(struct NotifyCallback *nc)
 
   struct EventColor *ev_c = nc->event_data;
 
-  const int c = ev_c->color;
+  const int c = ev_c->cid;
 
   // MT_COLOR_MAX is sent on `uncolor *`
   bool simple = (c == MT_COLOR_INDEX_COLLAPSED) || (c == MT_COLOR_INDEX_DATE) ||

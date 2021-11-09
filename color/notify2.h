@@ -51,7 +51,7 @@ enum NotifyColor
  */
 struct EventColor
 {
-  enum ColorId color;           ///< Colour ID that has changed
+  enum ColorId cid;             ///< Colour ID that has changed
   struct AttrColor *attr_color; ///< Colour object that has changed
 };
 

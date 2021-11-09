@@ -293,9 +293,10 @@ static void ansi_color_list_add(struct AttrColorList *acl, struct AnsiColor *ans
 
 /**
  * ansi_color_parse - Parse a string of ANSI escape sequence
- * @param str  String to parse
- * @param ansi AnsiColor for the result
- * @param acl  List to store the unique colours
+ * @param str     String to parse
+ * @param ansi    AnsiColor for the result
+ * @param acl     List to store the unique colours
+ * @param dry_run If true, parse but don't save the sequence
  * @retval num Total length of the escape sequences
  *
  * Parse (multiple) ANSI sequence(s) into @a ansi.

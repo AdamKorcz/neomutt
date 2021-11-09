@@ -173,8 +173,9 @@ const char *color_debug_log_attrs_list(int attrs)
 
 /**
  * color_debug_log_name - Get a string to represent a colour name
- * @param buf   Buffer for the result
- * @param color Palette colour number
+ * @param buf    Buffer for the result
+ * @param buflen Length of the Buffer
+ * @param color  Palette colour number
  * @retval ptr Generated string
  */
 const char *color_debug_log_name(char *buf, int buflen, int color)
@@ -390,20 +391,20 @@ void regex_colors_dump_all(void)
 
 /**
  * simple_color_dump - Dump a Simple colour to the log
- * @param color  Colour id, e.g. #MT_COLOR_UNDERLINE
+ * @param cid    Colour Id, e.g. #MT_COLOR_UNDERLINE
  * @param prefix Prefix for the log line
  */
-void simple_color_dump(enum ColorId color, const char *prefix)
+void simple_color_dump(enum ColorId cid, const char *prefix)
 {
-  struct AttrColor *ac = &SimpleColors[color];
+  struct AttrColor *ac = &SimpleColors[cid];
   int index = ac->curses_color ? ac->curses_color->index : -1;
   const char *name = NULL;
   const char *compose = "";
 
-  name = mutt_map_get_name(color, ColorFields);
+  name = mutt_map_get_name(cid, ColorFields);
   if (!name)
   {
-    name = mutt_map_get_name(color, ComposeColorFields);
+    name = mutt_map_get_name(cid, ComposeColorFields);
     if (name)
     {
       compose = "compose ";
@@ -432,13 +433,13 @@ void simple_colors_dump(bool force)
   color_debug("\033[1;32mSimpleColors:\033[0m\n");
   color_debug(
       "    | Name              | Index | Colour | Attrs      | Attrs\n");
-  for (enum ColorId color = MT_COLOR_NONE; color < MT_COLOR_MAX; color++)
+  for (enum ColorId cid = MT_COLOR_NONE; cid < MT_COLOR_MAX; cid++)
   {
-    struct AttrColor *ac = &SimpleColors[color];
+    struct AttrColor *ac = &SimpleColors[cid];
     if (!force && !attr_color_is_set(ac))
       continue;
 
-    simple_color_dump(color, "    ");
+    simple_color_dump(cid, "    ");
   }
 }
 

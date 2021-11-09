@@ -78,8 +78,8 @@ void               quoted_colors_clear(void);
 struct AttrColor * quoted_colors_get(int q);
 int                quoted_colors_num_used(void);
 
-bool               quoted_colors_parse_color  (enum ColorId color, uint32_t fg, uint32_t bg, int attrs, int q_level, int *rc, struct Buffer *err);
-enum CommandResult quoted_colors_parse_uncolor(enum ColorId color, int q_level, struct Buffer *err);
+bool               quoted_colors_parse_color  (enum ColorId cid, uint32_t fg, uint32_t bg, int attrs, int q_level, int *rc, struct Buffer *err);
+enum CommandResult quoted_colors_parse_uncolor(enum ColorId cid, int q_level, struct Buffer *err);
 
 struct QuoteStyle *qstyle_classify (struct QuoteStyle **quote_list, const char *qptr, size_t length, bool *force_redraw, int *q_level);
 void               qstyle_free_tree(struct QuoteStyle **quote_list);

@@ -56,12 +56,12 @@ void mutt_curses_set_color(struct AttrColor *ac)
 
 /**
  * mutt_curses_set_color_by_id - Set the colour and attributes by the colour id
- * @param color Color id, e.g. #MT_COLOR_TREE
+ * @param cid Colour Id, e.g. #MT_COLOR_TREE
  * @retval ptr Colour set
  */
-struct AttrColor *mutt_curses_set_color_by_id(enum ColorId color)
+struct AttrColor *mutt_curses_set_color_by_id(enum ColorId cid)
 {
-  struct AttrColor *ac = simple_color_get(color);
+  struct AttrColor *ac = simple_color_get(cid);
   if (!ac)
     ac = simple_color_get(MT_COLOR_NORMAL);
 
