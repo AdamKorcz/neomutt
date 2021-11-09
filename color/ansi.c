@@ -301,7 +301,8 @@ static void ansi_color_list_add(struct AttrColorList *acl, struct AnsiColor *ans
  * Parse (multiple) ANSI sequence(s) into @a ansi.
  * If the colour hasn't been seen before, store the it in @a acl.
  */
-int ansi_color_parse(const char *str, struct AnsiColor *ansi, struct AttrColorList *acl, bool dry_run)
+int ansi_color_parse(const char *str, struct AnsiColor *ansi,
+                     struct AttrColorList *acl, bool dry_run)
 {
   int seq_len = 0;
   int total_len = 0;

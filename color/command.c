@@ -484,40 +484,40 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
     return MUTT_CMD_SUCCESS;
   }
 
-  unsigned int object = MT_COLOR_NONE;
+  unsigned int color = MT_COLOR_NONE;
   int ql = 0;
   color_debug("uncolor: %s\n", mutt_buffer_string(buf));
-  enum CommandResult rc = parse_object(buf, s, &object, &ql, err);
+  enum CommandResult rc = parse_object(buf, s, &color, &ql, err);
   if (rc != MUTT_CMD_SUCCESS)
     return rc;
 
-  if (object == -1)
+  if (color == -1)
   {
     mutt_buffer_printf(err, _("%s: no such object"), buf->data);
     return MUTT_CMD_ERROR;
   }
 
-  if (object == MT_COLOR_QUOTED)
+  if (color == MT_COLOR_QUOTED)
   {
     color_debug("quoted\n");
-    return quoted_colors_parse_uncolor(object, ql, err);
+    return quoted_colors_parse_uncolor(color, ql, err);
   }
 
-  if ((object == MT_COLOR_STATUS) && !MoreArgs(s))
+  if ((color == MT_COLOR_STATUS) && !MoreArgs(s))
   {
     color_debug("simple\n");
-    simple_color_reset(object); // default colour for the status bar
+    simple_color_reset(color); // default colour for the status bar
     return MUTT_CMD_SUCCESS;
   }
 
-  if ((object != MT_COLOR_ATTACH_HEADERS) && (object != MT_COLOR_BODY) &&
-      (object != MT_COLOR_HEADER) && (object != MT_COLOR_INDEX) &&
-      (object != MT_COLOR_INDEX_AUTHOR) && (object != MT_COLOR_INDEX_FLAGS) &&
-      (object != MT_COLOR_INDEX_SUBJECT) && (object != MT_COLOR_INDEX_TAG) &&
-      (object != MT_COLOR_STATUS))
+  if ((color != MT_COLOR_ATTACH_HEADERS) && (color != MT_COLOR_BODY) &&
+      (color != MT_COLOR_HEADER) && (color != MT_COLOR_INDEX) &&
+      (color != MT_COLOR_INDEX_AUTHOR) && (color != MT_COLOR_INDEX_FLAGS) &&
+      (color != MT_COLOR_INDEX_SUBJECT) && (color != MT_COLOR_INDEX_TAG) &&
+      (color != MT_COLOR_STATUS))
   {
     color_debug("simple\n");
-    simple_color_reset(object);
+    simple_color_reset(color);
     return MUTT_CMD_SUCCESS;
   }
 
@@ -539,11 +539,11 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
     return MUTT_CMD_SUCCESS;
   }
 
-  if (do_uncolor(buf, s, object, uncolor))
+  if (do_uncolor(buf, s, color, uncolor))
   {
-    get_colorid_name(object, buf);
+    get_colorid_name(color, buf);
     color_debug("NT_COLOR_RESET: %s\n", buf->data);
-    struct EventColor ev_c = { object };
+    struct EventColor ev_c = { color };
     notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
     regex_colors_dump_all();
   }
