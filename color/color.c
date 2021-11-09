@@ -63,6 +63,10 @@ const struct Mapping ColorNames[] = {
 void colors_clear(void)
 {
   color_debug("clean up\n");
+  mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: [ALL]\n");
+  struct EventColor ev_c = { MT_COLOR_MAX, NULL };
+  notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
+
   simple_colors_clear();
   quoted_colors_clear();
   regex_colors_clear();

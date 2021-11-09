@@ -427,9 +427,6 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
 
   if (mutt_str_equal(buf->data, "*"))
   {
-    mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: [ALL]\n");
-    struct EventColor ev_c = { MT_COLOR_MAX, NULL };
-    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
     colors_clear();
     return MUTT_CMD_SUCCESS;
   }
@@ -501,13 +498,7 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
   } while (MoreArgs(s));
 
   if (changes)
-  {
-    get_colorid_name(color, buf);
-    color_debug("NT_COLOR_RESET: %s\n", buf->data);
-    struct EventColor ev_c = { color };
-    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
     regex_colors_dump_all();
-  }
 
   return MUTT_CMD_SUCCESS;
 }

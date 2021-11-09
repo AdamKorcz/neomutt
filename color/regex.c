@@ -37,10 +37,12 @@
 #include "pattern/lib.h"
 #include "attr.h"
 #include "color.h"
+#include "command2.h"
 #include "context.h"
 #include "curses2.h"
 #include "debug.h"
 #include "mutt_globals.h"
+#include "notify2.h"
 #include "regex4.h"
 
 // clang-format off
@@ -363,6 +365,17 @@ int regex_colors_parse_status_list(enum ColorId color, const char *pat, uint32_t
     return -1;
 
   int rc = add_pattern(&StatusList, pat, true, fg, bg, attrs, err, false, match);
+  if (rc == MUTT_CMD_SUCCESS)
+  {
+    struct Buffer *buf = mutt_buffer_pool_get();
+    get_colorid_name(color, buf);
+    color_debug("NT_COLOR_SET: %s\n", buf->data);
+    mutt_buffer_pool_release(&buf);
+
+    struct EventColor ev_c = { color, NULL }; //QWQ
+    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_SET, &ev_c);
+  }
+
   regex_colors_dump_all();
   return rc;
 }
@@ -380,10 +393,14 @@ bool regex_colors_parse_uncolor(enum ColorId color, const char *pat, bool uncolo
   if (!cl)
     return false;
 
-  if (!pat)
+  if (!pat) // Reset all patterns
   {
     bool rc = STAILQ_FIRST(cl);
-    //QWQ event
+
+    mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: [ALL]\n");
+    struct EventColor ev_c = { color, NULL };
+    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
+
     regex_color_list_clear(cl);
     return rc;
   }
@@ -402,6 +419,11 @@ bool regex_colors_parse_uncolor(enum ColorId color, const char *pat, bool uncolo
         STAILQ_REMOVE_AFTER(cl, prev, entries);
       else
         STAILQ_REMOVE_HEAD(cl, entries);
+
+      mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: XXX\n");
+      struct EventColor ev_c = { color, &np->attr_color };
+      notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
+
       regex_color_free(cl, &np);
       break;
     }
