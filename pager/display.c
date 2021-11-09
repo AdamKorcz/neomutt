@@ -148,11 +148,11 @@ static void resolve_color(struct MuttWindow *win, struct Line *lines, int line_n
     def_color = *(lines[line_num].syntax[0].attr_color);
   }
   else if (!(flags & MUTT_SHOWCOLOR))
-    def_color = *simple_colors_get(MT_COLOR_NORMAL);
+    def_color = *simple_color_get(MT_COLOR_NORMAL);
   else if (lines[m].color == MT_COLOR_HEADER)
     def_color = *lines[m].syntax[0].attr_color;
   else
-    def_color = *simple_colors_get(lines[m].color);
+    def_color = *simple_color_get(lines[m].color);
 
   if ((flags & MUTT_SHOWCOLOR) && (lines[m].color == MT_COLOR_QUOTED))
   {
@@ -189,7 +189,7 @@ static void resolve_color(struct MuttWindow *win, struct Line *lines, int line_n
     if (matching_chunk && (cnt >= matching_chunk->first) &&
         (cnt < matching_chunk->last))
     {
-      color = *simple_colors_get(MT_COLOR_SEARCH);
+      color = *simple_color_get(MT_COLOR_SEARCH);
       search = true;
     }
   }
@@ -198,14 +198,14 @@ static void resolve_color(struct MuttWindow *win, struct Line *lines, int line_n
   if (special & A_BOLD)
   {
     if (simple_color_is_set(MT_COLOR_BOLD) && !search)
-      color = *simple_colors_get(MT_COLOR_BOLD);
+      color = *simple_color_get(MT_COLOR_BOLD);
     else
       color.attrs |= A_BOLD;
   }
   else if (special & A_UNDERLINE)
   {
     if (simple_color_is_set(MT_COLOR_UNDERLINE) && !search)
-      color = *simple_colors_get(MT_COLOR_UNDERLINE);
+      color = *simple_color_get(MT_COLOR_UNDERLINE);
     else
       color.attrs |= A_UNDERLINE;
   }
@@ -986,13 +986,13 @@ int display_line(FILE *fp, LOFF_T *bytes_read, struct Line **lines,
 
     curr_line->color = MT_COLOR_MESSAGE_LOG;
     if (buf[11] == 'M')
-      curr_line->syntax[0].attr_color = simple_colors_get(MT_COLOR_MESSAGE);
+      curr_line->syntax[0].attr_color = simple_color_get(MT_COLOR_MESSAGE);
     else if (buf[11] == 'W')
-      curr_line->syntax[0].attr_color = simple_colors_get(MT_COLOR_WARNING);
+      curr_line->syntax[0].attr_color = simple_color_get(MT_COLOR_WARNING);
     else if (buf[11] == 'E')
-      curr_line->syntax[0].attr_color = simple_colors_get(MT_COLOR_ERROR);
+      curr_line->syntax[0].attr_color = simple_color_get(MT_COLOR_ERROR);
     else
-      curr_line->syntax[0].attr_color = simple_colors_get(MT_COLOR_NORMAL);
+      curr_line->syntax[0].attr_color = simple_color_get(MT_COLOR_NORMAL);
   }
 
   /* only do color highlighting if we are viewing a message */
@@ -1189,7 +1189,7 @@ int display_line(FILE *fp, LOFF_T *bytes_read, struct Line **lines,
       def_color = ((*lines)[m].syntax)[0].attr_color;
     else
     {
-      def_color = simple_colors_get((*lines)[m].color);
+      def_color = simple_color_get((*lines)[m].color);
     }
 
     // mutt_curses_set_color_by_id((*lines)[m].color);

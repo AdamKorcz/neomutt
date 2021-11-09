@@ -194,9 +194,9 @@ struct RegexColorList *regex_colors_get_list(enum ColorId id)
  * @param rcl       List of existing colours
  * @param s         String to match
  * @param sensitive true if the pattern case-sensitive
- * @param fg        Foreground colour ID
- * @param bg        Background colour ID
- * @param attrs     Attribute flags, e.g. A_BOLD
+ * @param fg        Foreground colour
+ * @param bg        Background colour
+ * @param attrs     Attributes, e.g. A_UNDERLINE
  * @param err       Buffer for error messages
  * @param is_index  true of this is for the index
  * @param match     Number of regex subexpression to match (0 for entire pattern)
@@ -298,9 +298,9 @@ static enum CommandResult add_pattern(struct RegexColorList *rcl, const char *s,
  * regex_colors_parse_color_list - Parse a Regex 'color' command
  * @param color   Colour ID, should be #MT_COLOR_QUOTED
  * @param pat     Regex pattern
- * @param fg      Foreground colour ID
- * @param bg      Background colour ID
- * @param attrs   Attributes
+ * @param fg      Foreground colour
+ * @param bg      Background colour
+ * @param attrs   Attributes, e.g. A_UNDERLINE
  * @param rc      Return code, e.g. #MUTT_CMD_SUCCESS
  * @param err     Buffer for error messages
  * @retval true Colour was parsed
@@ -349,9 +349,9 @@ bool regex_colors_parse_color_list(enum ColorId color, const char *pat, uint32_t
  * regex_colors_parse_status_list - Parse a Regex 'color status' command
  * @param color   Colour ID, should be #MT_COLOR_QUOTED
  * @param pat     Regex pattern
- * @param fg      Foreground colour ID
- * @param bg      Background colour ID
- * @param attrs   Attributes
+ * @param fg      Foreground colour
+ * @param bg      Background colour
+ * @param attrs   Attributes, e.g. A_UNDERLINE
  * @param match   Use the nth regex submatch
  * @param err     Buffer for error messages
  * @retval true Colour was parsed

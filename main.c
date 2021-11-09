@@ -984,20 +984,20 @@ int main(int argc, char *argv[], char *envp[])
     MT_COLOR_STATUS,    MT_COLOR_TREE,   0,
   };
 
-  struct AttrColor *ac = simple_colors_get(MT_COLOR_NORMAL);
+  struct AttrColor *ac = simple_color_get(MT_COLOR_NORMAL);
   mutt_curses_set_color(ac);
   mutt_refresh();
 
   for (int j = 0; cols[j] > 0; j++)
   {
     mutt_window_move(RootWindow, 0, j + 5);
-    ac = simple_colors_get(cols[j]);
+    ac = simple_color_get(cols[j]);
     const char *name = mutt_map_get_name(cols[j], ColorFields);
     mutt_curses_set_color(ac);
     // attrset(COLOR_PAIR(ac->curses_color->index) | ac->attrs);
     mutt_window_printf(RootWindow, "%3d %s (%d)", ac->curses_color->index, name, cols[j]);
   }
-  ac = simple_colors_get(MT_COLOR_NORMAL);
+  ac = simple_color_get(MT_COLOR_NORMAL);
   mutt_curses_set_color(ac);
   mutt_window_move(RootWindow, 0, 15);
   mutt_refresh();

@@ -65,13 +65,13 @@ void simple_colors_clear(void)
 }
 
 /**
- * simple_colors_get - Get the colour of an object by its ID
+ * simple_color_get - Get the colour of an object by its ID
  * @param id Colour ID, e.g. #MT_COLOR_SEARCH
  * @retval ptr AttrColor of the object
  *
  * @note Do not free the returned object
  */
-struct AttrColor *simple_colors_get(enum ColorId id)
+struct AttrColor *simple_color_get(enum ColorId id)
 {
   if (id >= MT_COLOR_MAX)
   {
@@ -94,7 +94,7 @@ struct AttrColor *simple_colors_get(enum ColorId id)
  */
 bool simple_color_is_set(enum ColorId id)
 {
-  return attr_color_is_set(simple_colors_get(id));
+  return attr_color_is_set(simple_color_get(id));
 }
 
 /**
@@ -102,7 +102,50 @@ bool simple_color_is_set(enum ColorId id)
  * @param color_id Colour, e.g. #MT_COLOR_HEADER
  * @retval true Colour is for an Email header
  */
-bool simple_color_is_header(enum ColorId color_id)
+bool simple_color_is_header(enum ColorId id)
 {
-  return (color_id == MT_COLOR_HEADER) || (color_id == MT_COLOR_HDRDEFAULT);
+  return (id == MT_COLOR_HEADER) || (id == MT_COLOR_HDRDEFAULT);
+}
+
+/**
+ * simple_color_set - Set the colour of a simple object
+ * @param id    Colour ID, e.g. #MT_COLOR_SEARCH
+ * @param fg    Foreground colour
+ * @param bg    Background colour
+ * @param attrs Attributes, e.g. A_UNDERLINE
+ * @retval ptr Colour
+ */
+struct AttrColor *simple_color_set(enum ColorId id, int fg, int bg, int attrs)
+{
+  struct AttrColor *ac = simple_color_get(id);
+  if (!ac)
+    return NULL;
+
+  struct CursesColor *cc = curses_color_new(fg, bg);
+  curses_color_free(&ac->curses_color);
+  ac->curses_color = cc;
+  ac->attrs = attrs;
+
+  return ac;
+}
+
+/**
+ * simple_color_reset - Clear the colour of a simple object
+ * @param id Colour ID, e.g. #MT_COLOR_SEARCH
+ */
+void simple_color_reset(enum ColorId id)
+{
+  struct AttrColor *ac = simple_color_get(id);
+  if (!ac)
+    return;
+
+  struct Buffer *buf = mutt_buffer_pool_get();
+  get_colorid_name(id, buf);
+  mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: %s\n", buf->data);
+  mutt_buffer_pool_release(&buf);
+
+  struct EventColor ev_c = { id, ac };
+  notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
+
+  attr_color_clear(ac);
 }

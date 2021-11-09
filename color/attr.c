@@ -111,9 +111,9 @@ void attr_color_list_clear(struct AttrColorList *acl)
 /**
  * attr_color_list_find - Find an AttrColor in a list
  * @param acl   List to search
- * @param fg    Foreground
- * @param bg    Background
- * @param attrs Attributes
+ * @param fg    Foreground colour
+ * @param bg    Background colour
+ * @param attrs Attributes, e.g. A_UNDERLINE
  * @retval ptr Matching AttrColor
  */
 struct AttrColor *attr_color_list_find(struct AttrColorList *acl, uint32_t fg,

@@ -61,9 +61,9 @@ void mutt_curses_set_color(struct AttrColor *ac)
  */
 struct AttrColor *mutt_curses_set_color_by_id(enum ColorId color)
 {
-  struct AttrColor *ac = simple_colors_get(color);
+  struct AttrColor *ac = simple_color_get(color);
   if (!ac)
-    ac = simple_colors_get(MT_COLOR_NORMAL);
+    ac = simple_color_get(MT_COLOR_NORMAL);
 
   mutt_curses_set_color(ac);
   return ac;

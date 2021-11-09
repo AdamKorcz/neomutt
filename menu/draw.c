@@ -86,7 +86,7 @@ static struct AttrColor *get_color(int index, unsigned char *s)
       }
       return NULL;
     default:
-      return simple_colors_get(type);
+      return simple_color_get(type);
   }
 
   STAILQ_FOREACH(np, rcl, entries)
@@ -126,7 +126,7 @@ static void print_enriched_string(struct MuttWindow *win, int index,
     if (*s < MUTT_TREE_MAX)
     {
       struct AttrColor *ac_merge =
-          merged_color_overlay(ac_def, simple_colors_get(MT_COLOR_TREE));
+          merged_color_overlay(ac_def, simple_color_get(MT_COLOR_TREE));
       ac_merge = merged_color_overlay(ac_merge, ac_ind);
 
       /* Combining tree fg color and another bg color requires having
@@ -353,7 +353,7 @@ void menu_redraw_index(struct Menu *menu)
     {
       struct AttrColor *ac_ind = NULL;
       if (i == menu->current)
-        ac_ind = simple_colors_get(MT_COLOR_INDICATOR);
+        ac_ind = simple_color_get(MT_COLOR_INDICATOR);
 
       ac = menu->color(menu, i);
 
@@ -419,7 +419,7 @@ void menu_redraw_motion(struct Menu *menu)
   const bool c_arrow_cursor = cs_subset_bool(menu->sub, "arrow_cursor");
   const char *const c_arrow_string =
       cs_subset_string(menu->sub, "arrow_string");
-  struct AttrColor *ac_ind = simple_colors_get(MT_COLOR_INDICATOR);
+  struct AttrColor *ac_ind = simple_color_get(MT_COLOR_INDICATOR);
   if (c_arrow_cursor)
   {
     /* clear the arrow */
@@ -469,7 +469,7 @@ void menu_redraw_current(struct Menu *menu)
   menu_make_entry(menu, buf, sizeof(buf), menu->current);
   menu_pad_string(menu, buf, sizeof(buf));
 
-  struct AttrColor *ac_ind = simple_colors_get(MT_COLOR_INDICATOR);
+  struct AttrColor *ac_ind = simple_color_get(MT_COLOR_INDICATOR);
   const bool c_arrow_cursor = cs_subset_bool(menu->sub, "arrow_cursor");
   const char *const c_arrow_string =
       cs_subset_string(menu->sub, "arrow_string");

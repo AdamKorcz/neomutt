@@ -61,7 +61,7 @@ int color_debug(const char *format, ...)
  * color_debug_log_color_attrs - Get a colourful string to represent a colour in the log
  * @param fg    Foreground colour
  * @param bg    Background colour
- * @param attrs Attributes
+ * @param attrs Attributes, e.g. A_UNDERLINE
  * @retval ptr Generated string
  *
  * @note Do not free the returned string
@@ -111,7 +111,7 @@ const char *color_debug_log_color(int fg, int bg)
 
 /**
  * color_debug_log_attrs - Get a string to represent some attributes in the log
- * @param attrs Attributes OR'd together, e.g. A_UNDERLINE
+ * @param attrs Attributes, e.g. A_UNDERLINE
  * @retval ptr Generated string
  *
  * @note Do not free the returned string
@@ -144,7 +144,7 @@ const char *color_debug_log_attrs(int attrs)
 
 /**
  * color_debug_log_attrs_list - Get a string to represent some attributes in the log
- * @param attrs Attributes OR'd together, e.g. A_UNDERLINE
+ * @param attrs Attributes, e.g. A_UNDERLINE
  * @retval ptr Generated string
  *
  * @note Do not free the returned string

@@ -38,7 +38,7 @@ struct Buffer;
  * @param[in]  s     Buffer containing string to be parsed
  * @param[out] fg    Foreground colour (set to -1)
  * @param[out] bg    Background colour (set to -1)
- * @param[out] attrs Attribute flags
+ * @param[out] attrs Attributes, e.g. A_UNDERLINE
  * @param[out] err   Buffer for error messages
  * @retval  0 Success
  * @retval -1 Error
@@ -50,5 +50,7 @@ enum CommandResult mutt_parse_color  (struct Buffer *buf, struct Buffer *s, intp
 enum CommandResult mutt_parse_mono   (struct Buffer *buf, struct Buffer *s, intptr_t data, struct Buffer *err);
 enum CommandResult mutt_parse_uncolor(struct Buffer *buf, struct Buffer *s, intptr_t data, struct Buffer *err);
 enum CommandResult mutt_parse_unmono (struct Buffer *buf, struct Buffer *s, intptr_t data, struct Buffer *err);
+
+void get_colorid_name(unsigned int color_id, struct Buffer *buf);
 
 #endif /* MUTT_COLOR_COMMAND_H */

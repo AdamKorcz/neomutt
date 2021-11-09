@@ -30,11 +30,13 @@
 
 extern struct AttrColor SimpleColors[];
 
-bool              simple_color_is_header(enum ColorId color_id);
-bool              simple_color_is_set(enum ColorId id);
+struct AttrColor *simple_color_get      (enum ColorId id);
+bool              simple_color_is_header(enum ColorId id);
+bool              simple_color_is_set   (enum ColorId id);
+void              simple_color_reset    (enum ColorId id);
+struct AttrColor *simple_color_set      (enum ColorId id, int fg, int bg, int attrs);
 
 void              simple_colors_clear(void);
-struct AttrColor *simple_colors_get(enum ColorId id);
 void              simple_colors_init(void);
 
 #endif /* MUTT_COLOR_SIMPLE_H */
