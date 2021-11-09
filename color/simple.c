@@ -99,7 +99,7 @@ bool simple_color_is_set(enum ColorId color)
 
 /**
  * simple_color_is_header - Colour is for an Email header
- * @param color_id Colour, e.g. #MT_COLOR_HEADER
+ * @param color Colour, e.g. #MT_COLOR_HEADER
  * @retval true Colour is for an Email header
  */
 bool simple_color_is_header(enum ColorId color)

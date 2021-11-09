@@ -366,3 +366,47 @@ int regex_colors_parse_status_list(enum ColorId color, const char *pat, uint32_t
   regex_colors_dump_all();
   return rc;
 }
+
+/**
+ * regex_colors_parse_uncolor - Parse a Regex 'uncolor' command
+ * @param color   Colour id, e.g. #MT_COLOR_STATUS
+ * @param pat     Pattern to remove (NULL to remove all)
+ * @param uncolor true if 'uncolor', false if 'unmono'
+ * @retval true If colours were unset
+ */
+bool regex_colors_parse_uncolor(enum ColorId color, const char *pat, bool uncolor)
+{
+  struct RegexColorList *cl = regex_colors_get_list(color);
+  if (!cl)
+    return false;
+
+  if (!pat)
+  {
+      bool rc = STAILQ_FIRST(cl);
+      //QWQ event
+      regex_color_list_clear(cl);
+      return rc;
+  }
+
+  bool rc = false;
+  struct RegexColor *np = NULL, *prev = NULL;
+  prev = NULL;
+  STAILQ_FOREACH(np, cl, entries)
+  {
+    if (mutt_str_equal(pat, np->pattern))
+    {
+      rc = true;
+
+      mutt_debug(LL_DEBUG1, "Freeing pattern \"%s\" from XXX\n", pat);
+      if (prev)
+        STAILQ_REMOVE_AFTER(cl, prev, entries);
+      else
+        STAILQ_REMOVE_HEAD(cl, entries);
+      regex_color_free(cl, &np);
+      break;
+    }
+    prev = np;
+  }
+
+  return rc;
+}

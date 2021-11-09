@@ -315,16 +315,16 @@ static enum CommandResult parse_color_pair(struct Buffer *buf, struct Buffer *s,
 
 /**
  * get_colorid_name - Get the name for a color id
- * @param color_id Colour, e.g. #MT_COLOR_HEADER
- * @param buf      Buffer for result
+ * @param color Colour, e.g. #MT_COLOR_HEADER
+ * @param buf   Buffer for result
  */
-void get_colorid_name(unsigned int color_id, struct Buffer *buf)
+void get_colorid_name(unsigned int color, struct Buffer *buf)
 {
   const char *name = NULL;
 
-  if ((color_id >= MT_COLOR_COMPOSE_HEADER) && (color_id <= MT_COLOR_COMPOSE_SECURITY_SIGN))
+  if ((color >= MT_COLOR_COMPOSE_HEADER) && (color <= MT_COLOR_COMPOSE_SECURITY_SIGN))
   {
-    name = mutt_map_get_name(color_id, ComposeColorFields);
+    name = mutt_map_get_name(color, ComposeColorFields);
     if (name)
     {
       mutt_buffer_printf(buf, "compose %s", name);
@@ -332,11 +332,11 @@ void get_colorid_name(unsigned int color_id, struct Buffer *buf)
     }
   }
 
-  name = mutt_map_get_name(color_id, ColorFields);
+  name = mutt_map_get_name(color, ColorFields);
   if (name)
     mutt_buffer_printf(buf, "%s", name);
   else
-    mutt_buffer_printf(buf, "UNKNOWN %d", color_id);
+    mutt_buffer_printf(buf, "UNKNOWN %d", color);
 }
 
 /**
@@ -416,43 +416,17 @@ static enum CommandResult parse_object(struct Buffer *buf, struct Buffer *s,
  * @param uncolor If true, 'uncolor', else 'unmono'
  * @retval true A colour was freed
  */
-static bool do_uncolor(struct Buffer *buf, struct Buffer *s, unsigned int object, bool uncolor)
+static bool do_uncolor(struct Buffer *buf, struct Buffer *s, unsigned int color, bool uncolor)
 {
-  struct RegexColorList *cl = regex_colors_get_list(object);
-  if (!cl)
-    return false;
-
-  struct RegexColor *np = NULL, *prev = NULL;
   bool rc = false;
-
   do
   {
     mutt_extract_token(buf, s, MUTT_TOKEN_NO_FLAGS);
     if (mutt_str_equal("*", buf->data))
-    {
-      rc = STAILQ_FIRST(cl);
-      //QWQ event
-      regex_color_list_clear(cl);
-      return rc;
-    }
+      return regex_colors_parse_uncolor(color, NULL, uncolor);
 
-    prev = NULL;
-    STAILQ_FOREACH(np, cl, entries)
-    {
-      if (mutt_str_equal(buf->data, np->pattern))
-      {
-        rc = true;
+    rc |= regex_colors_parse_uncolor(color, buf->data, uncolor);
 
-        mutt_debug(LL_DEBUG1, "Freeing pattern \"%s\" from MergedColors\n", buf->data);
-        if (prev)
-          STAILQ_REMOVE_AFTER(cl, prev, entries);
-        else
-          STAILQ_REMOVE_HEAD(cl, entries);
-        regex_color_free(cl, &np);
-        break;
-      }
-      prev = np;
-    }
   } while (MoreArgs(s));
 
   return rc;
