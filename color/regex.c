@@ -159,12 +159,12 @@ void regex_color_list_clear(struct RegexColorList *rcl)
 
 /**
  * regex_colors_get_list - Return the RegexColorList for a colour id
- * @param id Colour ID
+ * @param color Colour ID
  * @retval ptr RegexColorList
  */
-struct RegexColorList *regex_colors_get_list(enum ColorId id)
+struct RegexColorList *regex_colors_get_list(enum ColorId color)
 {
-  switch (id)
+  switch (color)
   {
     case MT_COLOR_ATTACH_HEADERS:
       return &AttachList;

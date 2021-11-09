@@ -64,7 +64,7 @@ void                   regex_color_free(struct RegexColorList *list, struct Rege
 struct RegexColor *    regex_color_new (void);
 
 void                   regex_colors_clear(void);
-struct RegexColorList *regex_colors_get_list(enum ColorId id);
+struct RegexColorList *regex_colors_get_list(enum ColorId color);
 void                   regex_colors_init(void);
 
 void                   regex_color_list_clear(struct RegexColorList *rcl);

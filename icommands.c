@@ -344,9 +344,9 @@ static enum CommandResult icmd_color(struct Buffer *buf, struct Buffer *s,
 
   mutt_buffer_addstr(&filebuf, "# All Colours\n\n");
   mutt_buffer_addstr(&filebuf, "# Simple Colours\n");
-  for (enum ColorId id = MT_COLOR_NONE + 1; id < MT_COLOR_MAX; id++)
+  for (enum ColorId color = MT_COLOR_NONE + 1; color < MT_COLOR_MAX; color++)
   {
-    struct AttrColor *ac = simple_color_get(id);
+    struct AttrColor *ac = simple_color_get(color);
     if (!ac)
       continue;
 
@@ -354,7 +354,7 @@ static enum CommandResult icmd_color(struct Buffer *buf, struct Buffer *s,
     if (!cc)
       continue;
 
-    const char *name = mutt_map_get_name(id, ColorFields);
+    const char *name = mutt_map_get_name(color, ColorFields);
     if (!name)
       continue;
 

@@ -71,30 +71,30 @@ void simple_colors_clear(void)
  *
  * @note Do not free the returned object
  */
-struct AttrColor *simple_color_get(enum ColorId id)
+struct AttrColor *simple_color_get(enum ColorId color)
 {
-  if (id >= MT_COLOR_MAX)
+  if (color >= MT_COLOR_MAX)
   {
-    mutt_error("colour overflow %d", id);
+    mutt_error("colour overflow %d", color);
     return NULL;
   }
-  if (id <= MT_COLOR_NONE)
+  if (color <= MT_COLOR_NONE)
   {
-    mutt_error("colour underflow %d", id);
+    mutt_error("colour underflow %d", color);
     return NULL;
   }
 
-  return &SimpleColors[id];
+  return &SimpleColors[color];
 }
 
 /**
  * simple_color_is_set - Is the object coloured?
- * @param id Colour ID, e.g. #MT_COLOR_SEARCH
+ * @param color Colour color, e.g. #MT_COLOR_SEARCH
  * @retval true Yes, a 'color' command has been used on this object
  */
-bool simple_color_is_set(enum ColorId id)
+bool simple_color_is_set(enum ColorId color)
 {
-  return attr_color_is_set(simple_color_get(id));
+  return attr_color_is_set(simple_color_get(color));
 }
 
 /**
@@ -102,9 +102,9 @@ bool simple_color_is_set(enum ColorId id)
  * @param color_id Colour, e.g. #MT_COLOR_HEADER
  * @retval true Colour is for an Email header
  */
-bool simple_color_is_header(enum ColorId id)
+bool simple_color_is_header(enum ColorId color)
 {
-  return (id == MT_COLOR_HEADER) || (id == MT_COLOR_HDRDEFAULT);
+  return (color == MT_COLOR_HEADER) || (color == MT_COLOR_HDRDEFAULT);
 }
 
 /**
@@ -115,9 +115,9 @@ bool simple_color_is_header(enum ColorId id)
  * @param attrs Attributes, e.g. A_UNDERLINE
  * @retval ptr Colour
  */
-struct AttrColor *simple_color_set(enum ColorId id, int fg, int bg, int attrs)
+struct AttrColor *simple_color_set(enum ColorId color, int fg, int bg, int attrs)
 {
-  struct AttrColor *ac = simple_color_get(id);
+  struct AttrColor *ac = simple_color_get(color);
   if (!ac)
     return NULL;
 
@@ -131,20 +131,20 @@ struct AttrColor *simple_color_set(enum ColorId id, int fg, int bg, int attrs)
 
 /**
  * simple_color_reset - Clear the colour of a simple object
- * @param id Colour ID, e.g. #MT_COLOR_SEARCH
+ * @param color Colour color, e.g. #MT_COLOR_SEARCH
  */
-void simple_color_reset(enum ColorId id)
+void simple_color_reset(enum ColorId color)
 {
-  struct AttrColor *ac = simple_color_get(id);
+  struct AttrColor *ac = simple_color_get(color);
   if (!ac)
     return;
 
   struct Buffer *buf = mutt_buffer_pool_get();
-  get_colorid_name(id, buf);
+  get_colorid_name(color, buf);
   mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: %s\n", buf->data);
   mutt_buffer_pool_release(&buf);
 
-  struct EventColor ev_c = { id, ac };
+  struct EventColor ev_c = { color, ac };
   notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
 
   attr_color_clear(ac);

@@ -54,7 +54,7 @@ void regex_color_dump      (struct RegexColor *rcol, const char *prefix);
 void regex_color_list_dump (const char *name, struct RegexColorList *rcl);
 void regex_colors_dump_all (void);
 
-void simple_color_dump     (enum ColorId id, const char *prefix);
+void simple_color_dump     (enum ColorId color, const char *prefix);
 void simple_colors_dump    (bool force);
 
 int color_debug(const char *format, ...);
@@ -79,7 +79,7 @@ static inline void regex_color_dump      (struct RegexColor *rcol, const char *p
 static inline void regex_color_list_dump (const char *name, struct RegexColorList *rcl) {}
 static inline void regex_colors_dump_all (void) {}
 
-static inline void simple_color_dump     (enum ColorId id, const char *prefix) {}
+static inline void simple_color_dump     (enum ColorId color, const char *prefix) {}
 static inline void simple_colors_dump    (bool force) {}
 
 static inline int color_debug(const char *format, ...) { return 0; }

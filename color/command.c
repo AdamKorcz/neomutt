@@ -341,17 +341,17 @@ void get_colorid_name(unsigned int color_id, struct Buffer *buf)
 
 /**
  * parse_object - Identify a colour object
- * @param[in]  buf Temporary Buffer space
- * @param[in]  s   Buffer containing string to be parsed
- * @param[out] obj Object type, e.g. #MT_COLOR_TILDE
- * @param[out] ql  Quote level, if type #MT_COLOR_QUOTED
- * @param[out] err Buffer for error messages
+ * @param[in]  buf   Temporary Buffer space
+ * @param[in]  s     Buffer containing string to be parsed
+ * @param[out] color Object type, e.g. #MT_COLOR_TILDE
+ * @param[out] ql    Quote level, if type #MT_COLOR_QUOTED
+ * @param[out] err   Buffer for error messages
  * @retval #CommandResult Result e.g. #MUTT_CMD_SUCCESS
  *
  * Identify a colour object, e.g. "quoted", "compose header"
  */
 static enum CommandResult parse_object(struct Buffer *buf, struct Buffer *s,
-                                       enum ColorId *obj, int *ql, struct Buffer *err)
+                                       enum ColorId *color, int *ql, struct Buffer *err)
 {
   int rc;
 
@@ -368,7 +368,7 @@ static enum CommandResult parse_object(struct Buffer *buf, struct Buffer *s,
     }
 
     *ql = val;
-    *obj = MT_COLOR_QUOTED;
+    *color = MT_COLOR_QUOTED;
     return MUTT_CMD_SUCCESS;
   }
 
@@ -389,7 +389,7 @@ static enum CommandResult parse_object(struct Buffer *buf, struct Buffer *s,
       return MUTT_CMD_WARNING;
     }
 
-    *obj = rc;
+    *color = rc;
     return MUTT_CMD_SUCCESS;
   }
 
@@ -404,7 +404,7 @@ static enum CommandResult parse_object(struct Buffer *buf, struct Buffer *s,
     color_debug("object: %s\n", mutt_map_get_name(rc, ColorFields));
   }
 
-  *obj = rc;
+  *color = rc;
   return MUTT_CMD_SUCCESS;
 }
 
@@ -431,8 +431,8 @@ static bool do_uncolor(struct Buffer *buf, struct Buffer *s, unsigned int object
     if (mutt_str_equal("*", buf->data))
     {
       rc = STAILQ_FIRST(cl);
-      regex_color_list_clear(cl);
       //QWQ event
+      regex_color_list_clear(cl);
       return rc;
     }
 
@@ -506,15 +506,7 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
   if ((object == MT_COLOR_STATUS) && !MoreArgs(s))
   {
     color_debug("simple\n");
-    // Simple colours
-    struct AttrColor *ac = &SimpleColors[object];
-
-    get_colorid_name(object, buf);
-    mutt_debug(LL_NOTIFY, "NT_COLOR_RESET: %s\n", buf->data);
-    struct EventColor ev_c = { object, ac };
-    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
-
-    attr_color_clear(ac);
+    simple_color_reset(object); // default colour for the status bar
     return MUTT_CMD_SUCCESS;
   }
 
@@ -549,10 +541,10 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
 
   if (do_uncolor(buf, s, object, uncolor))
   {
-    // get_colorid_name(object, buf);
-    // color_debug("NT_COLOR_RESET: %s\n", buf->data);
-    // struct EventColor ev_c = { object };
-    // notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
+    get_colorid_name(object, buf);
+    color_debug("NT_COLOR_RESET: %s\n", buf->data);
+    struct EventColor ev_c = { object };
+    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_RESET, &ev_c);
     regex_colors_dump_all();
   }
 
