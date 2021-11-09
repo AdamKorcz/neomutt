@@ -71,5 +71,6 @@ void                   regex_color_list_clear(struct RegexColorList *rcl);
 
 bool regex_colors_parse_color_list (enum ColorId color, const char *pat, uint32_t fg, uint32_t bg, int attrs, int *rc,   struct Buffer *err);
 int  regex_colors_parse_status_list(enum ColorId color, const char *pat, uint32_t fg, uint32_t bg, int attrs, int match, struct Buffer *err);
+bool regex_colors_parse_uncolor    (enum ColorId color, const char *pat, bool uncolor);
 
 #endif /* MUTT_COLOR_REGEX_H */

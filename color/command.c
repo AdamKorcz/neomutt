@@ -409,30 +409,6 @@ static enum CommandResult parse_object(struct Buffer *buf, struct Buffer *s,
 }
 
 /**
- * do_uncolor - Parse the 'uncolor' or 'unmono' command
- * @param buf     Buffer for temporary storage
- * @param s       Buffer containing the uncolor command
- * @param cl      List of existing colours
- * @param uncolor If true, 'uncolor', else 'unmono'
- * @retval true A colour was freed
- */
-static bool do_uncolor(struct Buffer *buf, struct Buffer *s, unsigned int color, bool uncolor)
-{
-  bool rc = false;
-  do
-  {
-    mutt_extract_token(buf, s, MUTT_TOKEN_NO_FLAGS);
-    if (mutt_str_equal("*", buf->data))
-      return regex_colors_parse_uncolor(color, NULL, uncolor);
-
-    rc |= regex_colors_parse_uncolor(color, buf->data, uncolor);
-
-  } while (MoreArgs(s));
-
-  return rc;
-}
-
-/**
  * parse_uncolor - Parse an 'uncolor' command
  * @param buf     Temporary Buffer space
  * @param s       Buffer containing string to be parsed
@@ -513,7 +489,18 @@ static enum CommandResult parse_uncolor(struct Buffer *buf, struct Buffer *s,
     return MUTT_CMD_SUCCESS;
   }
 
-  if (do_uncolor(buf, s, color, uncolor))
+  bool changes = false;
+  do
+  {
+    mutt_extract_token(buf, s, MUTT_TOKEN_NO_FLAGS);
+    if (mutt_str_equal("*", buf->data))
+      return regex_colors_parse_uncolor(color, NULL, uncolor);
+
+    changes |= regex_colors_parse_uncolor(color, buf->data, uncolor);
+
+  } while (MoreArgs(s));
+
+  if (changes)
   {
     get_colorid_name(color, buf);
     color_debug("NT_COLOR_RESET: %s\n", buf->data);
