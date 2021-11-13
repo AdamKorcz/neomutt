@@ -130,6 +130,14 @@ bool quoted_colors_parse_color(enum ColorId cid, uint32_t fg, uint32_t bg,
   else
     quoted_color_dump(ac, q_level, "QuotedColors new: ");
 
+  struct Buffer *buf = mutt_buffer_pool_get();
+  get_colorid_name(cid, buf);
+  color_debug("NT_COLOR_SET: %s\n", buf->data);
+  mutt_buffer_pool_release(&buf);
+
+  struct EventColor ev_c = { cid, NULL }; //QWQ NULL!
+  notify_send(ColorsNotify, NT_COLOR, NT_COLOR_SET, &ev_c);
+
   curses_colors_dump();
   quoted_color_list_dump();
 

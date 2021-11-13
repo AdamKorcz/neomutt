@@ -313,35 +313,47 @@ bool regex_colors_parse_color_list(enum ColorId cid, const char *pat, uint32_t f
                                    uint32_t bg, int attrs, int *rc, struct Buffer *err)
 
 {
+  if (cid == MT_COLOR_STATUS)
+    return false;
+
+  struct RegexColorList *rcl = regex_colors_get_list(cid);
+  if (!rcl)
+    return false;
+
+  bool sensitive = false;
+  bool is_index = false;
   switch (cid)
   {
     case MT_COLOR_ATTACH_HEADERS:
-      *rc = add_pattern(&AttachList, pat, true, fg, bg, attrs, err, false, 0);
-      break;
     case MT_COLOR_BODY:
-      *rc = add_pattern(&BodyList, pat, true, fg, bg, attrs, err, false, 0);
+      sensitive = true;
+      is_index = false;
       break;
     case MT_COLOR_HEADER:
-      *rc = add_pattern(&HeaderList, pat, false, fg, bg, attrs, err, false, 0);
+      sensitive = false;
+      is_index = false;
       break;
     case MT_COLOR_INDEX:
-      *rc = add_pattern(&IndexList, pat, true, fg, bg, attrs, err, true, 0);
-      break;
     case MT_COLOR_INDEX_AUTHOR:
-      *rc = add_pattern(&IndexAuthorList, pat, true, fg, bg, attrs, err, true, 0);
-      break;
     case MT_COLOR_INDEX_FLAGS:
-      *rc = add_pattern(&IndexFlagsList, pat, true, fg, bg, attrs, err, true, 0);
-      break;
     case MT_COLOR_INDEX_SUBJECT:
-      *rc = add_pattern(&IndexSubjectList, pat, true, fg, bg, attrs, err, true, 0);
-      break;
     case MT_COLOR_INDEX_TAG:
-      *rc = add_pattern(&IndexTagList, pat, true, fg, bg, attrs, err, true, 0);
+      sensitive = true;
+      is_index = true;
       break;
     default:
       return false;
   }
+
+  *rc = add_pattern(rcl, pat, sensitive, fg, bg, attrs, err, is_index, 0);
+
+  struct Buffer *buf = mutt_buffer_pool_get();
+  get_colorid_name(cid, buf);
+  color_debug("NT_COLOR_SET: %s\n", buf->data);
+  mutt_buffer_pool_release(&buf);
+
+  struct EventColor ev_c = { cid, NULL }; //QWQ NULL!
+  notify_send(ColorsNotify, NT_COLOR, NT_COLOR_SET, &ev_c);
 
   regex_colors_dump_all();
   return true;
@@ -365,16 +377,16 @@ int regex_colors_parse_status_list(enum ColorId cid, const char *pat, uint32_t f
     return -1;
 
   int rc = add_pattern(&StatusList, pat, true, fg, bg, attrs, err, false, match);
-  if (rc == MUTT_CMD_SUCCESS)
-  {
-    struct Buffer *buf = mutt_buffer_pool_get();
-    get_colorid_name(cid, buf);
-    color_debug("NT_COLOR_SET: %s\n", buf->data);
-    mutt_buffer_pool_release(&buf);
+  if (rc != MUTT_CMD_SUCCESS)
+    return rc;
 
-    struct EventColor ev_c = { cid, NULL }; //QWQ
-    notify_send(ColorsNotify, NT_COLOR, NT_COLOR_SET, &ev_c);
-  }
+  struct Buffer *buf = mutt_buffer_pool_get();
+  get_colorid_name(cid, buf);
+  color_debug("NT_COLOR_SET: %s\n", buf->data);
+  mutt_buffer_pool_release(&buf);
+
+  struct EventColor ev_c = { cid, NULL }; //QWQ NULL!
+  notify_send(ColorsNotify, NT_COLOR, NT_COLOR_SET, &ev_c);
 
   regex_colors_dump_all();
   return rc;

@@ -589,11 +589,13 @@ static enum CommandResult parse_color(struct Buffer *buf, struct Buffer *s,
   if (regex_colors_parse_color_list(cid, buf->data, fg, bg, attrs, &rc, err))
   {
     color_debug("regex_colors_parse_color_list done\n");
+    return MUTT_CMD_SUCCESS;
     // do nothing
   }
   else if (quoted_colors_parse_color(cid, fg, bg, attrs, q_level, &rc, err))
   {
     color_debug("quoted_colors_parse_color done\n");
+    return MUTT_CMD_SUCCESS;
     // do nothing
   }
   else if ((cid == MT_COLOR_STATUS) && MoreArgs(s))
@@ -626,13 +628,14 @@ static enum CommandResult parse_color(struct Buffer *buf, struct Buffer *s,
     }
 
     rc = regex_colors_parse_status_list(cid, buf->data, fg, bg, attrs, match, err);
+    return rc;
   }
   else // Remaining simple colours
   {
     color_debug("simple\n");
-    struct AttrColor *ac = simple_color_set(cid, fg, bg, attrs);
-    if (ac)
-      rc = MUTT_CMD_SUCCESS;
+    if (simple_color_set(cid, fg, bg, attrs))
+      return MUTT_CMD_SUCCESS;
+    return MUTT_CMD_ERROR;
   }
 
   if (rc == MUTT_CMD_SUCCESS)
