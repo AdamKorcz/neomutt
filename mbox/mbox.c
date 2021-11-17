@@ -1089,7 +1089,7 @@ static enum MxStatus mbox_mbox_check(struct Mailbox *m)
       char buf[1024];
       if (!mutt_file_seek(adata->fp, m->size, SEEK_SET))
       {
-        return MX_STATUS_ERROR;
+        goto error;
       }
       if (fgets(buf, sizeof(buf), adata->fp))
       {
@@ -1098,7 +1098,7 @@ static enum MxStatus mbox_mbox_check(struct Mailbox *m)
         {
           if (!mutt_file_seek(adata->fp, m->size, SEEK_SET))
           {
-            return MX_STATUS_ERROR;
+            goto error;
           }
 
           int old_msg_count = m->msg_count;
@@ -1150,6 +1150,7 @@ static enum MxStatus mbox_mbox_check(struct Mailbox *m)
 
   /* fatal error */
 
+error:
   mbox_unlock_mailbox(m);
   mx_fastclose_mailbox(m);
   mutt_sig_unblock();
