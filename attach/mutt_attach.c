@@ -1056,6 +1056,7 @@ int mutt_decode_save_attachment(FILE *fp, struct Body *m, const char *path,
     if (!s.fp_in)
     {
       mutt_perror("fopen");
+      mutt_file_fclose(&s.fp_out);
       return -1;
     }
 
