@@ -5,55 +5,63 @@ on:
 
 jobs:
   build:
-    name: Build-${{ matrix.cfg.name }}
-    runs-on: ubuntu-latest
-    # continue-on-error: true
-    container: ghcr.io/neomutt/fedora:f35
 
     strategy:
-      # Limit jobs to one at a time so that ccache really helps later builds
-      # max-parallel: 1
       matrix:
-        cfg:
-          - name: default
+        distro:
+          - name: Fedora 34
+            version: 34
+          - name: Fedora 35
+            version: 35
+          - name: Fedora 36 (rawhide)
+            version: 36
+        config:
+          - name: Default
             options:
-          - name: disabled
+          - name: Minimal
             options: --disable-idn --disable-nls --disable-pgp --disable-smime --ssl
-          - name: everything
+          - name: Everything
             options: --autocrypt --bdb --disable-idn --full-doc --gdbm --gnutls --gpgme --gss --idn2 --lmdb --lua --lz4 --notmuch --qdbm --sasl --tdb --tokyocabinet --with-lock=fcntl --zlib --zstd
 
+    name: ${{ matrix.distro.name }}: ${{ matrix.config.name }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    container: ghcr.io/neomutt/fedora:f${{ matrix.distro.version }}
+
     steps:
+    - name: Investigate
+      run: |
+        uname -a
+        cat /etc/redhat-release
+
     - name: Checkout Code
       uses: actions/checkout@v2
 
-    - name: Checkout Test Files
-      uses: actions/checkout@v2
-      with:
-        repository: neomutt/neomutt-test-files
-        path: test-files
+    # - name: Checkout Test Files
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: neomutt/neomutt-test-files
+    #     path: test-files
 
-    - name: Set Up Test Files
-      run: |
-        cd test-files
-        ./setup.sh
-
-    # - name: Compilation Cache
-    #   uses: hendrikmuhs/ccache-action@v1
+    # - name: Set Up Test Files
+    #   run: |
+    #     cd test-files
+    #     ./setup.sh
 
     - name: Configure Neomutt
-      run: ./configure ${{ matrix.cfg.options }}
+      run: ./configure ${{ matrix.config.options }}
 
-    - name: Build Neomutt
-      run: make -j 2
+    # - name: Build Neomutt
+    #   run: make -j 2
 
-    - name: Neomutt Version
-      run: ./neomutt -v
+    # - name: Neomutt Version
+    #   run: ./neomutt -v
 
-    - name: Build Tests
-      run: make -j 2 test/neomutt-test
+    # - name: Build Tests
+    #   run: make -j 2 test/neomutt-test
 
-    - name: Run Tests
-      run: |
-        export NEOMUTT_TEST_DIR=$GITHUB_WORKSPACE/test-files
-        make test
+    # - name: Run Tests
+    #   run: |
+    #     export NEOMUTT_TEST_DIR=$GITHUB_WORKSPACE/test-files
+    #     make test
 
